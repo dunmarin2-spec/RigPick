@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>리그픽(RigPick) - 스마트 낚시 견적기</title>
+
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23020617%22/><text y=%22.82em%22 x=%225%22 font-size=%2275%22>🎣</text></svg>">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23020617%22/><text y=%22.82em%22 x=%225%22 font-size=%2275%22>🎣</text></svg>">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RigPick">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@600;800&family=Nanum+Pen+Script&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #020617; color: #fff; }
+        .chan-doong-signature { font-family: 'Nanum Pen Script', cursive; font-size: 20px; color: #38bdf8; }
+        .estimate-card { 
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); 
+            border-radius: 24px; 
+            padding: 24px; 
+            border: 1px solid #334155; 
+        }
+        select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2338bdf8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-md mx-auto min-h-screen pb-10">
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <span class="chan-doong-signature">찬둥의</span>
+                <h1 class="text-4xl font-black text-sky-400 italic tracking-tighter">RigPick</h1>
+            </div>
+            <div class="text-[10px] text-slate-500 font-bold uppercase text-sky-500 tracking-widest">Premium Guide</div>
+        </header>
+
+        <div class="space-y-4 mb-6">
+            <div>
+                <label class="text-[10px] text-sky-400 font-bold ml-2 mb-1 block uppercase">대상 어종 선택</label>
+                <select id="fishType" onchange="generateEstimate()" class="w-full bg-slate-800 border border-slate-700 text-white font-bold p-4 rounded-2xl outline-none focus:border-sky-500 transition shadow-lg text-sm">
+                    <option value="감성돔/찌낚시">감성돔/찌낚시</option>
+                    <option value="배스/민물루어">배스/민물루어</option>
+                    <option value="광어/우럭/방파제">광어/우럭 (워킹)</option>
+                    <option value="주꾸미/갑오징어/선상">주꾸미/갑오징어 (선상)</option>
+                    <option value="무늬오징어/에깅">무늬오징어 (에깅)</option>
+                    <option value="참돔/타이라바">참돔 (타이라바)</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] text-rose-400 font-bold ml-2 mb-1 block uppercase">희망 예산 설정</label>
+                <select id="budgetLimit" onchange="generateEstimate()" class="w-full bg-slate-800 border border-slate-700 text-white font-bold p-4 rounded-2xl outline-none focus:border-rose-500 transition shadow-lg text-sm">
+                    <option value="가성비">초가성비 (10만원 내외)</option>
+                    <option value="입문자">국민 입문 (20~30만원)</option>
+                    <option value="중급자">고성능 중급 (50만원 이상)</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="resultCard" class="estimate-card mb-6 border-2 border-sky-500/30 shadow-2xl">
+            <h2 id="estimateTitle" class="text-xl font-black text-white mb-6 italic text-center">RigPick 추천 리포트</h2>
+            
+            <div class="space-y-5 text-sm">
+                <div class="flex flex-col gap-1 p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-sky-400 font-bold uppercase">추천 낚싯대 (Rod)</span>
+                    <span id="rodName" class="font-bold text-white text-base">--</span>
+                </div>
+                <div class="flex flex-col gap-1 p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-sky-400 font-bold uppercase">추천 릴 (Reel)</span>
+                    <span id="reelName" class="font-bold text-white text-base">--</span>
+                </div>
+                <div class="flex flex-col gap-1 p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-sky-400 font-bold uppercase">라인 및 소모품</span>
+                    <span id="lineInfo" class="font-bold text-white text-base">--</span>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-700/50 text-center">
+                    <p class="text-slate-400 text-[11px] leading-relaxed italic">"리그픽이 엄선한 최적의 밸런스입니다.<br>지금 바로 출조 준비를 완료하세요!"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <button onclick="shopFullSet()" class="w-full flex flex-col items-center justify-center bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">
+                <span class="text-sm">🚀 이 조합 최저가로 장바구니 담기</span>
+                <span class="text-[9px] opacity-70 font-normal mt-1">쿠팡 파트너스 연동으로 수익이 발생합니다</span>
+            </button>
+            
+            <a href="https://qr.kakaopay.com/FRK8J0SAD" target="_blank" class="flex items-center justify-center gap-2 bg-[#FAE100] text-[#3C1E1E] py-4 rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition">
+                ☕ 찬둥에게 커피 후원하기
+            </a>
+
+            <div class="bg-[#1e293b] border border-slate-700 rounded-2xl p-4">
+                <form action="https://www.coupang.com/np/search" method="get" target="_blank" class="flex gap-2">
+                    <input type="hidden" name="channel" value="AF4757238">
+                    <input type="text" id="coupangInput" name="q" placeholder="소모품/미끼 검색" class="flex-grow p-3 border border-slate-800 rounded-xl text-sm bg-[#020617] text-white outline-none">
+                    <button type="submit" class="bg-slate-700 px-4 rounded-xl font-bold text-xs text-white">검색</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const estimateData = {
+            "감성돔/찌낚시": {
+                "가성비": ["용성 비치 1-530", "시마노 FX 2500번", "나일론 2.5호 / 찌낚시 스타터 세트"],
+                "입문자": ["바낙스 CM 천궁 1-530", "다이와 레갈리스 LT 2500", "세미플로팅 2.5호 / 소품 가방 세트"],
+                "중급자": ["JS컴퍼니 닉스 인쇼어 1-530", "시마노 스트라딕 2500", "고급 원줄 / 명장 찌 세트"]
+            },
+            "배스/민물루어": {
+                "가성비": ["NS 블랙홀 빨간대", "다이와 크로스파이어", "카본 8lb / 웜 세트"],
+                "입문자": ["닉스팝 2 662ML", "다이와 레갈리스 LT 2000", "카본 10lb / 프리리그 세트"],
+                "중급자": ["JS컴퍼니 닉스 DX", "시마노 밴포드 2500", "합사 1호 / 하드베이트 세트"]
+            },
+            "주꾸미/갑오징어/선상": {
+                "가성비": ["NS 주꾸미 전용대", "바낙스 베이트릴", "합사 0.8호 / 에기 10개"],
+                "입문자": ["다이와 타코이카 X", "다이와 푸에고 CT", "8합사 0.8호 / 수평 에기 세트"],
+                "중급자": ["바낙스 이카마스터", "시마노 염월", "최고급 8합사 / 고부력 봉돌 세트"]
+            },
+            "광어/우럭/방파제": {
+                "가성비": ["바낙스 루어 낚싯대", "시마노 FX 2500", "합사 1.2호 / 지그헤드 세트"],
+                "입문자": ["닉스 인쇼어 862ML", "다이와 레갈리스 2500", "합사 1호 / 4인치 웜 세트"],
+                "중급자": ["다이와 라떼오", "시마노 스트라딕 3000", "고급 합사 1.2호 / 메탈지그 세트"]
+            },
+            "참돔/타이라바": {
+                "가성비": ["삼다도 타이라바 로드", "바낙스 카이젠", "합사 1호 / 타이라바 80g"],
+                "입문자": ["NS 퓨어 타이라바", "다이와 코우가", "합사 1호 / 유동식 타이라바 세트"],
+                "중급자": ["시마노 게임 염월", "시마노 오시아 콘퀘스트", "고급 8합사 / 수제 타이라바 세트"]
+            }
+        };
+
+        function generateEstimate() {
+            const fish = document.getElementById('fishType').value;
+            const budget = document.getElementById('budgetLimit').value;
+            const data = estimateData[fish]?.[budget] || ["데이터 준비중", "데이터 준비중", "데이터 준비중"];
+
+            document.getElementById('estimateTitle').innerText = `RigPick: ${fish} (${budget})`;
+            document.getElementById('rodName').innerText = data[0];
+            document.getElementById('reelName').innerText = data[1];
+            document.getElementById('lineInfo').innerText = data[2];
+            document.getElementById('coupangInput').value = `${fish} 소모품`;
+        }
+
+        function shopFullSet() {
+            const rod = document.getElementById('rodName').innerText;
+            const reel = document.getElementById('reelName').innerText;
+            const query = encodeURIComponent(`${rod} ${reel}`);
+            window.open(`https://www.coupang.com/np/search?q=${query}&channel=AF4757238`, '_blank');
+        }
+
+        window.onload = generateEstimate;
+    </script>
+</body>
+</html>
