@@ -9,26 +9,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap');
-        
-        /* 💡 여기가 문제였습니다! 전체 터치 잠금을 삭제했습니다. */
-        body { font-family: 'Pretendard', sans-serif; background: #020617; color: #fff; transition: 0.3s; }
-        
+        body { font-family: 'Pretendard', sans-serif; background: #020617; color: #fff; }
         .tool-card { background: rgba(30, 41, 59, 0.4); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); display: none; }
         .tool-card.active { display: block; }
         
-        /* 📏 자 영역에서만 화면이 흔들리지 않게 부분 적용 */
-        .ruler-container { position: relative; width: 100%; height: 160px; background: #f8fafc; border-radius: 16px; overflow: hidden; transition: 0.5s ease; touch-action: none; user-select: none; }
+        /* 📏 기본 자 스타일 (터치 잠금 적용) */
+        .ruler-container { 
+            position: relative; width: 100%; height: 160px; background: #f8fafc; 
+            border-radius: 16px; overflow: hidden; cursor: pointer; touch-action: none; user-select: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
         .ruler-line { position: absolute; bottom: 0; border-left: 1px solid #1e293b; pointer-events: none; }
         
-        /* 📱 전체화면 모드 스타일 */
-        body.fullscreen-mode { padding: 0 !important; overflow: hidden; }
-        body.fullscreen-mode .main-content { display: none; }
-        body.fullscreen-mode #tab-ruler { 
-            display: block !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            z-index: 9999; background: #020617; border-radius: 0; padding: 20px;
-            overflow-y: auto; /* 전체화면에서도 세로 스크롤 허용 */
+        /* 📱 가로 전체화면 마법의 CSS */
+        body.fullscreen-mode { overflow: hidden; } /* 배경 스크롤 차단 */
+        .ruler-container.fs-active {
+            position: fixed;
+            top: 0;
+            left: 100vw;
+            width: 100vh;
+            height: 100vw;
+            transform: rotate(90deg);
+            transform-origin: top left;
+            z-index: 99999;
+            border-radius: 0;
+            margin: 0;
+            border: none;
         }
-        body.fullscreen-mode .ruler-container { height: 75vh !important; margin-top: 20px; }
+        
+        /* 전체화면일 때만 보이는 안내 문구 */
+        .fs-msg { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #cbd5e1; font-weight: 900; font-size: 20px; pointer-events: none; white-space: nowrap; }
+        .fs-active .fs-msg { display: block; }
+        
+        .fs-active .normal-msg { display: none; }
+        .normal-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94a3b8; font-weight: 900; font-size: 14px; pointer-events: none; white-space: nowrap; opacity: 0.5; }
 
         .tab-btn { opacity: 0.4; transition: 0.3s; border-bottom: 3px solid transparent; }
         .tab-btn.active { opacity: 1; border-bottom: 3px solid #38bdf8; color: #38bdf8; }
@@ -59,15 +73,13 @@
             </div>
         </div>
         
-        <div class="ruler-container shadow-2xl mb-4" id="rulerBody"></div>
-        
-        <button onclick="toggleFullscreen()" id="fsBtn" class="w-full py-4 bg-slate-700 rounded-2xl font-black text-sm mb-4 shadow-lg active:scale-95 transition">
-            🔳 전체화면 확장 (최대 측정)
-        </button>
+        <div class="ruler-container mb-4" id="rulerBody" onclick="toggleFullscreen()">
+            </div>
 
-        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 main-content">
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
             <p class="text-[10px] text-slate-300 leading-relaxed text-center">
-                💡 <span class="text-emerald-400 font-bold">카드(5.4cm)</span>를 대고 <span class="text-white font-bold">+/-</span>로 눈금을 맞추세요.
+                💡 <span class="text-emerald-400 font-bold">카드(5.4cm)</span>로 <span class="text-white font-bold">+/-</span> 눈금을 맞춘 후,<br>
+                <span class="text-sky-400 font-bold">자를 터치하면 전체화면으로 가로 확장됩니다.</span>
             </p>
         </div>
     </div>
@@ -104,7 +116,7 @@
                 </div>
                 <form action="https://www.coupang.com/np/search" method="get" target="_blank" class="flex gap-2">
                     <input type="hidden" name="channel" value="AF4757238">
-                    <input type="text" name="q" placeholder="필요한 장비/소모품 검색 (ID: AF4757238)" class="flex-grow bg-slate-950 p-3 rounded-xl text-xs outline-none border border-slate-700 focus:border-sky-500 transition-all">
+                    <input type="text" name="q" placeholder="장비/소모품 검색 (ID: AF4757238)" class="flex-grow bg-slate-950 p-3 rounded-xl text-xs outline-none border border-slate-700 focus:border-sky-500 transition-all">
                     <button type="submit" class="bg-sky-500 px-5 rounded-xl font-black text-xs active:scale-95 transition">검색</button>
                 </form>
             </div>
@@ -120,15 +132,8 @@
 
     <script>
         let ppiScale = parseFloat(localStorage.getItem('rigpick_scale')) || 1.0;
-        let isFS = false;
 
-        function toggleFullscreen() {
-            isFS = !isFS;
-            document.body.classList.toggle('fullscreen-mode');
-            document.getElementById('fsBtn').innerText = isFS ? "🔙 원래대로 돌아가기" : "🔳 전체화면 확장 (최대 측정)";
-            drawRuler();
-        }
-
+        // 탭 열기
         function openTab(name) {
             document.querySelectorAll('.tool-card').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -137,6 +142,15 @@
             if(name === 'ruler') drawRuler();
         }
 
+        // 전체화면 (가로 모드) 토글
+        function toggleFullscreen() {
+            const rb = document.getElementById('rulerBody');
+            document.body.classList.toggle('fullscreen-mode');
+            rb.classList.toggle('fs-active');
+            drawRuler(); // 상태 변경 후 다시 그림
+        }
+
+        // 보정값 조절
         function adjustRuler(val) {
             ppiScale = Math.max(0.5, Math.min(2.0, parseFloat((ppiScale + val).toFixed(2))));
             localStorage.setItem('rigpick_scale', ppiScale);
@@ -144,33 +158,60 @@
             drawRuler();
         }
 
+        // 📏 디지털 자 그리기 (핵심 로직)
         function drawRuler() {
             const ruler = document.getElementById('rulerBody');
+            const isFS = ruler.classList.contains('fs-active');
             ruler.innerHTML = '';
+            
+            // 안내 문구 추가
+            const msgNormal = document.createElement('div');
+            msgNormal.className = 'normal-msg';
+            msgNormal.innerText = '👆 터치하여 가로 확장';
+            ruler.appendChild(msgNormal);
+
+            const msgFS = document.createElement('div');
+            msgFS.className = 'fs-msg';
+            msgFS.innerText = '🔙 화면을 터치하면 원래대로 돌아갑니다';
+            ruler.appendChild(msgFS);
+
+            document.getElementById('zoomVal').innerText = ppiScale.toFixed(2);
             const mmPx = 3.7795 * ppiScale; 
-            const limit = isFS ? 400 : 150;
+            
+            // 가로 전체화면일 때는 300mm(30cm)까지, 평소엔 150mm(15cm)까지 그림
+            const limit = isFS ? 300 : 150;
+            
             for(let i=0; i<=limit; i++) {
                 const line = document.createElement('div');
                 line.className = 'ruler-line';
                 line.style.left = (i * mmPx) + 'px';
+                
                 if(i % 10 === 0) {
-                    line.style.height = isFS ? '100px' : '45px';
+                    // 1cm 단위
+                    line.style.height = isFS ? '35%' : '45px';
                     line.style.borderLeft = '2px solid #1e293b';
                     const txt = document.createElement('span');
                     txt.innerText = i/10;
                     txt.style.position = 'absolute';
-                    txt.style.top = '-28px';
+                    txt.style.top = isFS ? '-35px' : '-28px';
                     txt.style.left = '-4px';
-                    txt.style.fontSize = '14px';
+                    txt.style.fontSize = isFS ? '20px' : '14px';
                     txt.style.fontWeight = '900';
                     txt.style.color = '#1e293b';
                     line.appendChild(txt);
-                } else if(i % 5 === 0) { line.style.height = isFS ? '60px' : '25px'; }
-                else { line.style.height = isFS ? '35px' : '12px'; line.style.opacity = '0.3'; }
+                } else if(i % 5 === 0) { 
+                    // 0.5cm 단위
+                    line.style.height = isFS ? '20%' : '25px'; 
+                } else { 
+                    // 1mm 단위
+                    line.style.height = isFS ? '10%' : '12px'; 
+                    line.style.opacity = '0.3'; 
+                }
                 ruler.appendChild(line);
             }
         }
 
+        // 릴/무게 계산 함수들
         function calcReel() {
             const bL = parseFloat(document.getElementById('baseLine').value);
             const bM = parseFloat(document.getElementById('baseMeter').value);
