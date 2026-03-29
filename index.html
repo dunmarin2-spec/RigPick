@@ -9,12 +9,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background: #020617; color: #fff; touch-action: none; transition: 0.3s; }
+        
+        /* 💡 여기가 문제였습니다! 전체 터치 잠금을 삭제했습니다. */
+        body { font-family: 'Pretendard', sans-serif; background: #020617; color: #fff; transition: 0.3s; }
+        
         .tool-card { background: rgba(30, 41, 59, 0.4); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); display: none; }
         .tool-card.active { display: block; }
         
-        /* 📏 자 스타일 */
-        .ruler-container { position: relative; width: 100%; height: 160px; background: #f8fafc; border-radius: 16px; overflow: hidden; transition: 0.5s ease; }
+        /* 📏 자 영역에서만 화면이 흔들리지 않게 부분 적용 */
+        .ruler-container { position: relative; width: 100%; height: 160px; background: #f8fafc; border-radius: 16px; overflow: hidden; transition: 0.5s ease; touch-action: none; user-select: none; }
         .ruler-line { position: absolute; bottom: 0; border-left: 1px solid #1e293b; pointer-events: none; }
         
         /* 📱 전체화면 모드 스타일 */
@@ -23,6 +26,7 @@
         body.fullscreen-mode #tab-ruler { 
             display: block !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             z-index: 9999; background: #020617; border-radius: 0; padding: 20px;
+            overflow-y: auto; /* 전체화면에서도 세로 스크롤 허용 */
         }
         body.fullscreen-mode .ruler-container { height: 75vh !important; margin-top: 20px; }
 
@@ -144,7 +148,7 @@
             const ruler = document.getElementById('rulerBody');
             ruler.innerHTML = '';
             const mmPx = 3.7795 * ppiScale; 
-            const limit = isFS ? 400 : 150; // 전체화면일 때 더 길게 그림
+            const limit = isFS ? 400 : 150;
             for(let i=0; i<=limit; i++) {
                 const line = document.createElement('div');
                 line.className = 'ruler-line';
