@@ -144,7 +144,7 @@
             <div class="bg-slate-800/90 p-4 rounded-3xl border border-slate-700 shadow-2xl">
                 <form action="https://www.coupang.com/np/search" method="get" target="_blank" class="flex gap-2">
                     <input type="hidden" name="channel" value="AF4757238">
-                    <input type="text" name="q" placeholder="장비/소모품 검색 (ID: AF4757238)" class="flex-grow bg-slate-950 p-3 rounded-xl text-xs outline-none border border-slate-700 focus:border-sky-500 text-white font-bold">
+                    <input type="text" name="q" placeholder="장비/소모품 검색" class="flex-grow bg-slate-950 p-3 rounded-xl text-xs outline-none border border-slate-700 focus:border-sky-500 text-white font-bold">
                     <button type="submit" class="bg-sky-500 px-5 rounded-xl font-black text-xs text-white">검색</button>
                 </form>
             </div>
@@ -181,6 +181,7 @@
             drawRuler();
         }
 
+        // 🛠️ 1mm 눈금 살리기 핵심 로직 (투명도 제거 + 고정 픽셀 적용)
         function drawRuler() {
             const ruler = document.getElementById('rulerBody');
             const isFS = ruler.classList.contains('fs-active');
@@ -195,29 +196,27 @@
                 const line = document.createElement('div');
                 line.className = 'ruler-line';
                 line.style.left = (i * mmPx) + 'px';
+                line.style.opacity = '1'; // 💡 모바일 브라우저 렌더링 버그 방지를 위해 무조건 불투명도 100% 적용
                 
-                // 💡 전체화면일 때 퍼센트(%)를 사용해 눈금이 증발하지 않게 대폭 수정!
                 if(i % 10 === 0) {
-                    line.style.height = isFS ? '25%' : '45px';
-                    line.style.borderLeft = isFS ? '3px solid #1e293b' : '2px solid #1e293b';
+                    line.style.height = isFS ? '90px' : '45px';
+                    line.style.borderLeft = isFS ? '3px solid #0f172a' : '2px solid #1e293b';
                     const txt = document.createElement('span');
                     txt.innerText = i/10;
                     txt.style.position = 'absolute';
-                    txt.style.top = isFS ? '-40px' : '-28px';
+                    txt.style.top = isFS ? '-35px' : '-28px';
                     txt.style.left = '-6px';
                     txt.style.fontSize = isFS ? '24px' : '14px';
                     txt.style.fontWeight = '900';
-                    txt.style.color = '#1e293b';
+                    txt.style.color = '#0f172a';
                     line.appendChild(txt);
                 } else if(i % 5 === 0) { 
-                    line.style.height = isFS ? '15%' : '25px'; 
-                    line.style.borderLeft = isFS ? '2px solid #1e293b' : '1px solid #1e293b';
-                    line.style.opacity = isFS ? '0.8' : '1';
+                    line.style.height = isFS ? '50px' : '25px'; 
+                    line.style.borderLeft = isFS ? '2px solid #334155' : '1.5px solid #334155';
                 } else { 
-                    // 1mm 눈금도 전체화면에서 화면 높이의 8%를 차지하게 하여 무조건 보이게 만듦
-                    line.style.height = isFS ? '8%' : '12px'; 
-                    line.style.borderLeft = '1px solid #1e293b';
-                    line.style.opacity = isFS ? '0.4' : '0.3'; 
+                    // 💡 퍼센트(%) 버리고 강제 픽셀(px) 적용 및 완전한 솔리드 컬러(회색) 적용
+                    line.style.height = isFS ? '25px' : '12px'; 
+                    line.style.borderLeft = isFS ? '1px solid #64748b' : '1px solid #94a3b8';
                 }
                 ruler.appendChild(line);
             }
@@ -238,10 +237,8 @@
         }
 
         function convWeight(type) {
-            const ho = document.getElementById('in-ho');
-            const g = document.getElementById('in-g');
-            const oz = document.getElementById('in-oz');
-            const b = document.getElementById('in-b');
+            const ho = document.getElementById('in-ho'); const g = document.getElementById('in-g');
+            const oz = document.getElementById('in-oz'); const b = document.getElementById('in-b');
 
             let val = 0;
             if(type === 'ho') val = parseFloat(ho.value);
