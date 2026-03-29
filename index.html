@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>리그픽 - 초정밀 툴박스</title>
+    <title>어신(魚神) 툴박스 - 초정밀 툴박스</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23020617%22/><text y=%22.82em%22 x=%225%22 font-size=%2275%22>🎣</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,8 +48,11 @@
     </div>
 
     <div class="max-w-md mx-auto main-content">
-        <header class="text-center py-4 text-sky-400 italic">
-            <h1 class="text-4xl font-black tracking-tighter">RigPick</h1>
+        <header class="text-center py-4 text-sky-400">
+            <div class="flex flex-col items-center justify-center">
+                <span class="text-xs text-emerald-400 font-bold italic mb-1">찬둥의</span>
+                <h1 class="text-4xl font-black tracking-tighter italic">어신(魚神) 툴박스</h1>
+            </div>
             <p class="text-[10px] text-emerald-400 font-bold uppercase mt-1 tracking-widest">Precision Toolkit</p>
         </header>
 
@@ -149,7 +152,7 @@
                 </form>
             </div>
             <a href="https://qr.kakaopay.com/FRK8J0SAD" target="_blank" class="flex items-center justify-center gap-3 bg-[#FAE100] text-[#3C1E1E] py-4 rounded-3xl font-black text-sm shadow-xl active:scale-95 transition-all">
-<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/>
                 </svg>
                 찬둥에게 커피 후원하기
@@ -198,7 +201,6 @@
                 line.className = 'ruler-line';
                 line.style.left = (i * mmPx) + 'px';
                 
-                // 💡 전체화면일 때 퍼센트(%)를 사용해 눈금이 증발하지 않게 대폭 수정!
                 if(i % 10 === 0) {
                     line.style.height = isFS ? '25%' : '45px';
                     line.style.borderLeft = isFS ? '3px solid #1e293b' : '2px solid #1e293b';
@@ -216,7 +218,6 @@
                     line.style.borderLeft = isFS ? '2px solid #1e293b' : '1px solid #1e293b';
                     line.style.opacity = isFS ? '0.8' : '1';
                 } else { 
-                    // 1mm 눈금도 전체화면에서 화면 높이의 8%를 차지하게 하여 무조건 보이게 만듦
                     line.style.height = isFS ? '8%' : '12px'; 
                     line.style.borderLeft = '1px solid #1e293b';
                     line.style.opacity = isFS ? '0.4' : '0.3'; 
